@@ -1,0 +1,18 @@
+openapi: 3.0.3
+info:
+  title: ping API
+  description: simple API avec un endpoint de retourner pong en requete GET
+  version: 1.0.0
+paths:
+  /ping:
+    get:
+      summary: Ping endpoint
+      description: retourne "pong" en plain text response
+      responses:
+        '200':
+          description: succesful response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
