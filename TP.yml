@@ -1,0 +1,158 @@
+openapi: 3.0.3
+info:
+  title: Mon API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+paths:
+  /hello:
+    get:
+      responses:
+        200:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Hello world!
+  /welcome:
+    get:
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+      responses:
+        200:
+          description: Welcome message
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Welcome <name>!
+  /students:
+    get:
+      responses:
+        200:
+          description: List of students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    reference:
+                      type: string
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    age:
+                      type: integer
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  reference:
+                    type: string
+                  first_name:
+                    type: string
+                  last_name:
+                    type: string
+                  age:
+                    type: integer
+      responses:
+        200:
+          description: List of created students with actual students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    reference:
+                      type: string
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    age:
+                      type: integer
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  reference:
+                    type: string
+                  first_name:
+                    type: string
+                  last_name:
+                    type: string
+                  age:
+                    type: integer
+      responses:
+        200:
+          description: List of created or updated students with actual students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    reference:
+                      type: string
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    age:
+                      type: integer
+  /students-authorized:
+    get:
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Authorized list of students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    reference:
+                      type: string
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    age:
+                      type: integer
+        401:
+          description: Invalid authorization header provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: Invalid authorization header provided <auth_header>
