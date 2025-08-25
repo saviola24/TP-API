@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from starlette.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse
 app = FastAPI()
-@app.get("/ping", response_model=PlainTextResponse)
+@app.get("/ping", response_class=PlainTextResponse)
 async def ping():
-    return PlainTextResponse("pong")
+    return "pong"
