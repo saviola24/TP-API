@@ -1,0 +1,85 @@
+openapi: 3.0.0
+info:
+  title: API de recherche de produits
+  version: 1.0.0
+  description: API pour rechercher et gérer des produits.
+
+servers:
+  - url: http://localhost:8000
+    description: Serveur de développement
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nom du produit.
+          example: "Pommes"
+        expiration_datetime:
+          type: string
+          format: date-time
+          description: Date et heure d'expiration du produit.
+          example: "2025-08-25T10:00:00Z"
+        price:
+          type: number
+          format: float
+          description: Prix du produit.
+          example: 1.50
+      required:
+        - name
+        - expiration_datetime
+        - price
+    ProductsList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Product'
+      examples:
+        multiProducts:
+          value:
+            - name: "Pommes"
+              expiration_datetime: "2025-08-25T10:00:00Z"
+              price: 1.50
+            - name: "Bananes"
+              expiration_datetime: "2025-08-28T12:30:00Z"
+              price: 2.75
+        emptyList:
+          value: []
+
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: Nombre maximum d'éléments à retourner.
+      schema:
+        type: integer
+      examples:
+        defaultLimit:
+          value: 10
+    SearchQuery:
+      name: q
+      in: query
+      required: false
+      description: Terme de recherche pour filtrer les produits par nom.
+      schema:
+        type: string
+      examples:
+        searchTerm:
+          value: "Pommes"
+
+paths:
+  /products:
+    get:
+      summary: Rechercher des produits
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/SearchQuery'
+      responses:
+        '200':
+          description: Une liste de produits correspondant aux critères de recherche.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductsList'
