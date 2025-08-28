@@ -1,0 +1,201 @@
+openapi: 3.0.0
+info:
+  title: API de gestion de produits et commandes
+  version: 1.0.0
+  description: API avec authentification pour la création de commandes.
+
+servers:
+  - url: http://localhost:8000
+    description: Serveur de développement
+
+tags:
+  - name: Products
+    description: Opérations liées aux produits.
+  - name: Orders
+    description: Opérations liées aux commandes, y compris la création sécurisée.
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nom du produit.
+          example: "Pommes"
+        expiration_datetime:
+          type: string
+          format: date-time
+          description: Date et heure d'expiration du produit.
+          example: "2025-08-25T10:00:00Z"
+        price:
+          type: number
+          format: float
+          description: Prix du produit.
+          example: 1.50
+      required:
+        - name
+        - expiration_datetime
+        - price
+    Order:
+      type: object
+      properties:
+        identifier:
+          type: integer
+          description: Identifiant unique de la commande.
+          example: 101
+        customer_name:
+          type: string
+          description: Nom du client ayant passé la commande.
+          example: "Jean Dupont"
+        creation_datetime:
+          type: string
+          format: date-time
+          description: Date et heure de création de la commande.
+          example: "2025-08-25T15:00:00Z"
+        total_amount:
+          type: number
+          format: float
+          description: Montant total de la commande.
+          example: 45.99
+      required:
+        - identifier
+        - customer_name
+        - creation_datetime
+        - total_amount
+    OrdersList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Order'
+      examples:
+        default:
+          value:
+            - identifier: 101
+              customer_name: "Jean Dupont"
+              creation_datetime: "2025-08-25T15:00:00Z"
+              total_amount: 45.99
+            - identifier: 102
+              customer_name: "Marie Curie"
+              creation_datetime: "2025-08-26T09:00:00Z"
+              total_amount: 120.50
+    NewOrderRequest:
+      type: object
+      properties:
+        customer_name:
+          type: string
+          description: Nom du client.
+          example: "Nouvel client"
+        total_amount:
+          type: number
+          format: float
+          description: Montant total.
+          example: 75.00
+      required:
+        - customer_name
+        - total_amount
+
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: Nombre maximum d'éléments à retourner.
+      schema:
+        type: integer
+      examples:
+        defaultLimit:
+          value: 10
+    SearchQuery:
+      name: q
+      in: query
+      required: false
+      description: Terme de recherche pour filtrer les produits par nom.
+      schema:
+        type: string
+      examples:
+        searchTerm:
+          value: "Pommes"
+    Page:
+      name: page
+      in: query
+      required: false
+      description: Numéro de la page à retourner.
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    Size:
+      name: size
+      in: query
+      required: false
+      description: Nombre d'éléments par page.
+      schema:
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 100
+
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+      description: Authentification de base avec un nom d'utilisateur et un mot de passe.
+
+paths:
+  /products:
+    get:
+      summary: Rechercher des produits
+      tags:
+        - Products
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/SearchQuery'
+      responses:
+        '200':
+          description: Une liste de produits correspondant aux critères de recherche.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+  /orders:
+    get:
+      summary: Obtenir la liste paginée des commandes
+      tags:
+        - Orders
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Liste paginée de commandes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersList'
+    post:
+      summary: Créer une nouvelle commande
+      tags:
+        - Orders
+      security:
+        - BasicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewOrderRequest'
+            examples:
+              exampleOrder:
+                value:
+                  customer_name: "Nouvel client"
+                  total_amount: 75.00
+      responses:
+        '201':
+          description: Commande créée avec succès.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
